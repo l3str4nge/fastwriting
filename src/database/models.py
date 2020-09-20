@@ -8,3 +8,11 @@ class Language(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+
+
+class Dictionary(Base):
+    __tablename__ = 'dictionary'
+
+    id = Column(Integer, primary_key=True, index=True)
+    word = Column(String(100))
+    lang = Column(Integer, ForeignKey("language.id"), index=True)
