@@ -1,0 +1,22 @@
+#python specific
+*.pyc
+*.pyo
+*.orig
+.pytest_cache/
+__pycache__/
+*.egg-info/
+*.egg
+
+## generic files to ignore
+.idea/
+.vscode/
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+*.log
+.vagrant/
+nosetests.xml
+.coverage
+results/

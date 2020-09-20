@@ -1,0 +1,41 @@
+version: "3"
+services:
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - mysqldata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=fastwriting
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+
+  tests:
+    build: .
+    command: alembic upgrade head
+    volumes:
+      - .:/source/fastwriting/
+    depends_on:
+      - redis
+      - db
+    links:
+      - redis
+      - db
+    environment:
+      REDIS_HOST: redis
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fastwriting
+      MYSQL_HOST: db
+
+
+volumes:
+  mysqldata:
