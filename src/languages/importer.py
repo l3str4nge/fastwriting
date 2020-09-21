@@ -13,8 +13,8 @@ class WordsImporter(BaseWordImporter):
 
     def to_db(self):
         try:
-            for word in self.words:
-                self.destination.add(Dictionary(word=str(word)))
+            for i, word in enumerate(self.words):
+                self.destination.add(Dictionary(id=i+1, word=str(word)))
 
             self.destination.commit()
         except Exception as e:

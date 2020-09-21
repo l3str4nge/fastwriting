@@ -10,6 +10,9 @@ def test_import_english(importer: WordsImporter):
     words = importer.from_file('resources/english.txt')
 
     assert len(words) == 9999
+    assert words[0] == 'of'
+    assert words[2000] == 'context'
+    assert words[7655] == 'futures'
 
 
 def test_import_english_to_db_without_exception(importer_with_session: WordsImporter):
@@ -17,4 +20,9 @@ def test_import_english_to_db_without_exception(importer_with_session: WordsImpo
     words = fetch_all_polish_words(importer_with_session.destination)
 
     assert len(words) == 9999
-    assert str(words[0].word) == 'of'
+    assert words[0] == 'of'
+    assert words[20] == 'at'
+    assert words[202] == 'days'
+    assert words[2002] == 'shirt'
+    assert words[9000] == 'whale'
+
