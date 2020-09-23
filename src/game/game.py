@@ -21,4 +21,4 @@ class Game:
 
         redis = await get_redis()
         await redis.hmset(instance.key, **instance.data)
-        return instance.data
+        return instance.data 
