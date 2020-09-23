@@ -18,12 +18,12 @@ async def test_create_new_game(redis_instance):
 
 @pytest.mark.asyncio
 @patch('src.database.base.SessionLocal')
-@patch('src.database.operations.query_random_words')
-async def test_create_first_level(mock_session, redis_with_game):
-    # TODO: FINISH IT
+@patch('src.services.query_random_words')
+async def test_create_first_level(random_words, mock_session, redis_with_game):
+    random_words.return_value = ','.join(["TEST" for _ in range(60)])
     await create_level(mock_session, "test_game", stage=1)
     level_obj = await redis_with_game.hgetall("test_game", encoding='utf-8')
 
-    assert level_obj['stage'] == 1
-    assert level_obj['timeout'] == 120
-    assert len(level_obj['words']) == 60
+    assert level_obj['stage'] == '1'
+    assert level_obj['timeout'] == '120'
+    assert len(level_obj['words'].split(',')) == 60
