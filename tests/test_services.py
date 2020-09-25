@@ -30,9 +30,8 @@ async def test_get_game_from_redis(redis_instance):
 @patch('src.database.base.SessionLocal')
 @patch('src.game.game.query_random_words')
 async def test_create_first_stage(random_words, mock_session):
-    random_words.return_value = ','.join(["TEST" for _ in range(60)])
+    random_words.return_value = ["TEST" for _ in range(60)]
     stage = await create_stage(mock_session, "test_game_x", stage=1)
-
     assert stage['number'] == 1
     assert stage['timeout'] == 120
     assert len(stage['words'].split(',')) == 60
@@ -43,3 +42,6 @@ async def test_create_get_stage_from_redis(redis_instance):
     stage = await Stage.from_redis("STAGE_ID")
 
     assert stage['game_id'] == '123'
+    assert stage['number'] == '1'
+    assert stage['words'] == 'test,test'
+    assert stage['timeout'] == '60'

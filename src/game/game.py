@@ -38,32 +38,38 @@ class Game:
 
 class Stage:
 
-    def __init__(self, game_id: str):
-        self.game_id = game_id
+    def __init__(self, stage_id: str, number: int = 1):
+        self.stage_id = stage_id
+        self.number = number
         self.data = {
-            "game_id": self.game_id,
-            "number": "",
+            "game_id": "",
+            "number": self.number,
             "words": [],
             "timeout": ""
         }
 
     def generate_words(self, session: SessionLocal):
-        self.data['words'] = query_random_words(session, self.stage_config['words_number'])
+        self.data['words'] = ','.join(query_random_words(session, STAGES[self.number]['words_number']))
+
+    def set_timeout_from_settings(self):
+        self.data['timeout'] = STAGES[self.number]['timeout']
 
     @classmethod
-    async def create(cls, session: SessionLocal,  game_id: str, number: int = 1):
-        instance = cls(game_id, number)
+    async def create(cls, session: SessionLocal,  stage_id: str, number: int = 1):
+        instance = cls(stage_id, number)
         instance.generate_words(session)
-
+        instance.set_timeout_from_settings()
         redis = await get_redis()
-        await redis.hmset(instance.game_id, **instance.data)
+        await redis.hmset(instance.stage_id, **instance.data)
         return instance.data
 
     @classmethod
-    async def from_redis(cls, game_id: str):
+    async def from_redis(cls, stage_id: str):
         redis = await get_redis()
-        game_data = await redis.hgetall(game_id)
-        instance = cls(game_id=game_id, number=None)
-        instance.data['started'] = game_data['started']
-        instance.data['current_stage'] = game_data['current_stage']
+        stage_data = await redis.hgetall(stage_id)
+        instance = cls(stage_id=stage_id)
+        instance.data['game_id'] = stage_data['game_id']
+        instance.data['number'] = stage_data['number']
+        instance.data['words'] = stage_data['words']
+        instance.data['timeout'] = stage_data['timeout']
         return instance.data
