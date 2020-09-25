@@ -17,6 +17,10 @@ class Game:
             'current_stage': self.INITIAL_STAGE
         }
 
+    @property
+    def current_stage(self):
+        return self.data['current_stage']
+
     @classmethod
     async def create_for(cls, username: str) -> dict:
         instance = cls(username)
@@ -45,8 +49,17 @@ class Stage:
             "game_id": "",
             "number": self.number,
             "words": [],
-            "timeout": ""
+            "timeout": "",
+            "score": 0
         }
+
+    @property
+    def words(self) -> list:
+        return self.data['words'].split(',')
+
+    @property
+    def score(self) -> int:
+        return int(self.data['score'])
 
     def generate_words(self, session: SessionLocal):
         self.data['words'] = ','.join(query_random_words(session, STAGES[self.number]['words_number']))
@@ -72,4 +85,11 @@ class Stage:
         instance.data['number'] = stage_data['number']
         instance.data['words'] = stage_data['words']
         instance.data['timeout'] = stage_data['timeout']
-        return instance.data
+        instance.data['score'] = int(stage_data['score'])
+        return instance
+
+    async def pass_word(self, word: str):
+        redis = await get_redis()
+        result = await redis.hincrby(self.stage_id, "score", 1)
+        self.data['score'] += 1
+        return result

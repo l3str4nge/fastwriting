@@ -25,3 +25,7 @@ class RedisInterface:
     @classmethod
     async def hgetall(cls, key):
         return await cls.redis_instance.hgetall(key, encoding="utf-8")
+
+    @classmethod
+    async def hincrby(cls, key, field, value):
+        return await cls.redis_instance.hincrby(key, field, value)

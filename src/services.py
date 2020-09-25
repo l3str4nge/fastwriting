@@ -21,14 +21,17 @@ async def new_game(username: str) -> dict:
     return await Game.create_for(username)
 
 
-async def create_stage(session: SessionLocal, game_id: str, stage: int):
+async def create_stage(session: SessionLocal, game_id: str, stage: int) -> Stage:
     return await Stage.create(session, game_id, stage)
 
 
-async def pass_word_if_valid(session: SessionLocal, game_id: str, word: str):
-    redis = await get_redis()
-    game = await redis.get_game(id=game_id)
-    current_stage = game['current_stage']
+async def pass_word_if_valid(game_id: str, word: str) -> bool:
+    game = await Game.from_redis(game_id)
+    stage = await Stage.from_redis(game.current_stage)
 
-    # stage = await redis.get_stage(game_id, stage=)
+    if word in stage.words:
+        await stage.pass_word(word)
+        return True
+
+    return False
 
