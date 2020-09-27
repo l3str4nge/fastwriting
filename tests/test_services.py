@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from unittest.mock import patch
 
 from src.game.game import Game, Stage
@@ -7,9 +8,11 @@ from tests.fixtures.redis import (
     redis_with_game,
     redis_with_stage
 )
+from tests.fixtures.game import stage
 from tests.fixtures.db import session, db
 from src.services import new_game, create_stage, pass_word_if_valid
 from tests.utils.fakers import get_dummy_stage, get_dummy_game
+from tests.utils.time import move_in_time_forward_by
 
 
 @pytest.mark.asyncio
@@ -89,3 +92,21 @@ async def test_pass_word(redis_with_stage):
 
     await stage.pass_word("NOT_IMPORTANT_HERE")
     assert 3 == stage.score
+
+
+@pytest.mark.asyncio
+@pytest.mark.freeze_time("2020-10-10 12:00:20")
+async def test_check_timeout_expired(freezer, stage):
+    stage.data['timeout'] = '120'
+    stage.data['started'] = "2020-10-10_12:00:00"
+
+    assert not await stage.check_timeout_expired()
+
+    move_in_time_forward_by(freezer, seconds=10)
+    assert not await stage.check_timeout_expired()
+
+    move_in_time_forward_by(freezer, seconds=20)
+    assert not await stage.check_timeout_expired()
+
+    move_in_time_forward_by(freezer, seconds=200)
+    assert await stage.check_timeout_expired()

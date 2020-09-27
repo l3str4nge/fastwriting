@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from src.database.base import SessionLocal
 from src.database.operations import query_random_words
 from src.redis.interface import get_redis
@@ -50,6 +52,7 @@ class Stage:
             "number": self.number,
             "words": [],
             "timeout": "",
+            "started": "",
             "score": 0
         }
 
@@ -60,6 +63,14 @@ class Stage:
     @property
     def score(self) -> int:
         return int(self.data['score'])
+
+    @property
+    def started(self) -> datetime:
+        return datetime.strptime(self.data['started'], "%Y-%m-%d_%H:%M:%S")
+
+    @property
+    def timeout(self) -> int:
+        return int(self.data['timeout'])
 
     def generate_words(self, session: SessionLocal):
         self.data['words'] = ','.join(query_random_words(session, STAGES[self.number]['words_number']))
@@ -93,3 +104,8 @@ class Stage:
         result = await redis.hincrby(self.stage_id, "score", 1)
         self.data['score'] += 1
         return result
+
+    async def check_timeout_expired(self) -> bool:
+        return (datetime.now() - self.started).seconds > self.timeout
+
+

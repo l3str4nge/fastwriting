@@ -1,5 +1,6 @@
 fastapi==0.44.1
 uvicorn==0.10.8
+pytest-freezegun==0.3.0.post1
 sqlalchemy
 pytest
 pytest-asyncio
