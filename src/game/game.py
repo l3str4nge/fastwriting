@@ -1,3 +1,4 @@
+from uuid import uuid1
 from datetime import datetime, timedelta
 
 from src.database.base import SessionLocal
@@ -15,7 +16,7 @@ class Game:
         self.key = f"{hash(self.username)}_{self.username}"
         self.data = {
             'username': self.username,
-            'started': "",
+            'started': datetime.now().strftime("%Y-%m-%d_%H:%S:%M"),
             'current_stage': self.INITIAL_STAGE
         }
 
@@ -45,7 +46,7 @@ class Game:
 class Stage:
 
     def __init__(self, stage_id: str, number: int = 1):
-        self.stage_id = stage_id
+        self.stage_id = stage_id or str(uuid1())
         self.number = number
         self.data = {
             "game_id": "",

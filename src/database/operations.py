@@ -9,4 +9,4 @@ def count_words(session: SessionLocal) -> int:
 def query_random_words(session: SessionLocal, how_many: int) -> list:
     limit = count_words(session)
     random_indexes = random.sample(range(1, limit), how_many)
-    return session.query(Dictionary.word).filter(Dictionary.id.in_(random_indexes)).all()
+    return [x.word for x in session.query(Dictionary.word).filter(Dictionary.id.in_(random_indexes)).all()]

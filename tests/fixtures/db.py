@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from settings.settings import DB_URL
 
 from src.database.base import Base
+from src.database.models import Dictionary
 
 
 @pytest.fixture(scope='module')
@@ -56,3 +57,12 @@ def session(db):
     session.rollback()
     session.close()
     print('\n----- ROLLBACK DB SESSION\n')
+
+
+@pytest.fixture(scope="module")
+def session_with_words(session):
+    # populate 1k words to database
+    for i in range(1_000):
+        session.add(Dictionary(id=i + 1, word=str(f"test_{i}")))
+    session.commit()
+    yield session
